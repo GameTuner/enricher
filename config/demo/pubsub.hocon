@@ -1,0 +1,36 @@
+{
+  "input": {
+    "subscription": "projects/<gcp-project-id>/subscriptions/<collector-good-subscription-id>"
+  }
+
+  "output": {
+    "good": {
+      "topic": "projects/<gcp-project-id>/topics/<enricher-good-topic>",
+      "attributes": [ "event_fingerprint" ]
+    }
+
+    "bad": {
+      "topic": "projects/<gcp-project-id>/topics/<enricher-bad-topic>"
+    }
+  }
+
+  "metadataService": {
+    "appIdConfigsEndpoint": "http://127.0.0.1:8000/api/v1/apps"
+    "cacheRefreshIntervalSeconds": 10
+  }
+
+   "monitoring": {
+
+      # Optional, configure how metrics are reported
+      "metrics": {
+
+        # Optional. Log to stdout using Slf4j
+        "stdout": {
+          "period": "10 seconds"
+
+          # Optional, override the default metric prefix
+          # "prefix": "snowplow.enrich."
+        }
+      }
+    }
+}

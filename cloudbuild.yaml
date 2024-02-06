@@ -1,0 +1,33 @@
+substitutions:
+  _SERVICE: gametuner-enricher
+  _ARTIFACT_REPOSITORY: gametuner-pipeline-services
+steps:
+  - name: "sbtscala/scala-sbt:eclipse-temurin-11.0.16_1.7.2_2.12.17"
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        sbt "project common" test
+        sbt "project pubsub" assembly docker:stage
+        cp -r modules/pubsub/target/docker/stage /workspace/dockerfile
+
+  - name: "gcr.io/cloud-builders/docker"
+    dir: "/workspace/dockerfile"
+    args: ["build", "-t", "$LOCATION-docker.pkg.dev/$PROJECT_ID/$_ARTIFACT_REPOSITORY/$_SERVICE", "."]
+
+  - name: "gcr.io/cloud-builders/docker"
+    dir: "/workspace/dockerfile"
+    args: [ "push", "$LOCATION-docker.pkg.dev/$PROJECT_ID/$_ARTIFACT_REPOSITORY/$_SERVICE" ]
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args: [ "gcloud", "compute", "instance-groups", "managed", "rolling-action", "replace",
+            "$_SERVICE-mig", "--project=$PROJECT_ID",
+            "--max-unavailable=0", "--max-surge=3", "--region=$LOCATION" ]
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args: [ "gcloud", "compute", "instance-groups", "managed", "wait-until",
+            "$_SERVICE-mig", "--stable", "--project=$PROJECT_ID",
+            "--region=$LOCATION", "--timeout=300" ]
+serviceAccount: 'projects/$PROJECT_ID/serviceAccounts/cloudbuild@$PROJECT_ID.iam.gserviceaccount.com'
+options:
+  logging: CLOUD_LOGGING_ONLY

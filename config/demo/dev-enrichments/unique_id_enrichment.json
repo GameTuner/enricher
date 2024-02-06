@@ -1,0 +1,16 @@
+{
+	"schema": "iglu:com.algebraai.gametuner.enricher/unique_id_resolver/jsonschema/1-0-0",
+	"data": {
+		"vendor": "com.algebraai.gametuner.enricher",
+		"name": "unique_id_resolver",
+		"enabled": false,
+		"parameters": {
+			"username": "enricher",
+			"password": "enricher",
+			"database": "unique_id",
+			"connectionName": "unique_id",
+			"maximumElementsInCache": 100000,
+			"expireCacheAfterMinutes": 60
+		}
+	}
+}
